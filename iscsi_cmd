@@ -1,0 +1,214 @@
+##################   FOR INITIATOR  ###################
+
+
+
+sudo su 
+
+
+root >> 	apt -y install open-iscsi
+			
+		(for remove ->  apt -y purge open-iscsi)
+		
+		sudo apt-get update
+		sudo apt-get upgrade
+		
+		nano /etc/iscsi/initiatorname.iscsi
+
+		(change  # line 56: uncomment node.session.auth.authmethod = CHAP
+			# line 60,61: uncomment and specify the username and password you set on the iSCSI target 				node.session.auth.username = username node.session.auth.password = password )
+
+
+
+
+		nano /etc/iscsi/iscsid.conf 
+
+		
+		systemctl restart iscsid open-iscsi
+
+
+		systemctl restart enable open-iscsi 
+
+
+		iscsiadm -m discovery -t sendtargets -p IP 
+
+		
+		
+		iscsiadm -m node -o show 
+
+
+		iscsiadm -m node --login 
+
+
+
+		iscsiadm -m session -o show 
+
+-------------------------------------------
+		cat /proc/partitions 
+
+
+		parted --script /dev/sdb "mklabel msdos"
+
+
+		parted --script /dev/sdb "mkpart primary 0% 100%"
+
+
+		mkfs.ext4 /dev/sdb1 
+
+		
+		 mount /dev/sdb1 /mnt 
+
+			
+		df -hT 
+----------------------------------------------------
+
+lsblk (partition avalaible)
+##########################################################################################
+
+
+######## For permission read & write #########
+
+
+sudo umount /dev/sdb1
+
+
+sudo umount /mnt
+
+
+sudo mount -o remount,rw '/mnt
+
+
+
+sudo mount /dev/sdb1 /mnt
+sudo mount -o remount,rw '/mnt'
+
+
+cd /mnt
+sudo chmod 777 * ( for giving permission in the folder)
+
+
+###########################################################################################
+
+
+
+
+
+
+
+################### For Targetcli ######################
+
+
+
+sudo su
+
+root ->
+
+
+apt -y install targetcli-fb 
+
+
+
+mkdir /var/lib/iscsi_disks
+ 
+
+
+(if want to delete disk then) --->       rm -rf /var/lib/iscsi_disks  
+
+
+
+targetcli
+
+
+
+cd backstores/fileio 
+
+
+
+create disk01 /var/lib/iscsi_disks/disk01.img 10G 
+
+
+
+cd /iscsi
+
+
+
+create iqn.2018-05.world.srv:dlp.target01 
+
+
+
+cd iqn.2018-05.world.srv:dlp.target01/tpg1/luns 
+
+
+
+create /backstores/fileio/disk01 
+
+
+cd ../acls 
+
+
+
+create iqn.2018-05.world.srv:www.initiator01 
+
+
+
+
+cd iqn.2018-05.world.srv:www.initiator01 
+
+
+
+
+set auth userid=username 
+
+
+
+
+set auth password=password 
+
+
+
+exit
+
+
+
+ufw allow 3260
+
+
+ufw reload
+
+
+ss -napt | grep 3260
+
+
+################################################################################################
+
+################ for deleting the target node ############
+		
+
+  
+iscsiadm -m node -o delete -T iqn.2007-06.com.test.geeklab:storage.geeklab --portal 192.168.10.12:3260
+
+
+##################### target tgt #######################
+
+	#create lebel
+	parted --script /dev/sdb "mklabel msdos" 
+
+    #create partiton
+    parted --script /dev/sdb "mkpart primary 0% 100%" 
+	
+	#format with ext4
+	mkfs.ext4 /dev/sdb1 	
+
+	# mount device
+	mount /dev/sdb1 /mnt 
+	
+	#df -hT 
+
+	#copy the file into mnt
+	cp /home/kaifee/Desktop/LSD.mp3 /mnt
+	
+	
+
+
+
+		
+
